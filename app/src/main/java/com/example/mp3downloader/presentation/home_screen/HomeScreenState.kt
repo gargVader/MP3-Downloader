@@ -9,10 +9,8 @@ data class HomeScreenState(
 
     val step: HomeScreenStep = HomeScreenStep.INITIAL,
 
-    val isGrabbingError: Boolean = false,
-    val isDownloadingError: Boolean = false,
-    val isConvertingError: Boolean = false,
-    val isSavingError: Boolean = false,
+    val toastErrorMessage: String? = null,
+    val errorMessage: String = "",
 
     val videoInfo: VideoInfo? = null
 )

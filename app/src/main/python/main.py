@@ -8,12 +8,13 @@ ydl_opts = {
 }
 
 
-def get_video_info(url):
+def get_video_info(url, callback=None):
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False)
         out = ydl.sanitize_info(info)
         out = {key: out[key] for key in
                out.keys() & {'title', 'thumbnail', 'view_count', 'like_count'}}
+        callback("Hey there!")
         return out
 
 

@@ -12,7 +12,12 @@ data class VideoInfo(
     val like_count: Long,
     @field:Json(name = "view_count")
     val view_count: Long
-)
+){
+    val simplifiedTitle : String
+        get() {
+            return title.replace(Regex("[^\\w\\s]"), "")
+        }
+}
 
 fun Long.simplifyAmount(): String {
     var am: Float

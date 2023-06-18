@@ -70,7 +70,7 @@ fun VideoInfoItem(videoInfo: VideoInfo) {
                     modifier = Modifier.padding(start = 24.dp, end = 8.dp),
                     tint = Color.Gray
                 )
-                Text(text = "${videoInfo.like_count.simplifyAmount()} Views", color = Color.Gray)
+                Text(text = "${videoInfo.like_count.simplifyAmount()} Likes", color = Color.Gray)
             }
         }
     }

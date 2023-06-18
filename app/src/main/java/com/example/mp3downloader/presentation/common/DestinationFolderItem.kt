@@ -61,7 +61,7 @@ fun DestinationFolderItem(onClick: () -> Unit, enabled: Boolean, displayPath: St
             }
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 Icons.Default.Info,

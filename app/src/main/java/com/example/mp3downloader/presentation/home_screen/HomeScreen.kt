@@ -39,9 +39,9 @@ fun HomeScreen(
     val rootPath = LocalContext.current.filesDir.absolutePath
 
     LaunchedEffect(state) {
-        if (state.isGrabbingError) {
-            Toast.makeText(context, "Failed to grab video info", Toast.LENGTH_SHORT).show()
-            viewModel.grabbingErrorMessageShown()
+        state.toastErrorMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            viewModel.toastErrorMessageShown()
         }
     }
 
@@ -77,8 +77,6 @@ fun HomeScreen(
                 onDeleteClick = { viewModel.onEvent(HomeScreenEvents.OnYoutubeLinkChange("")) })
             Spacer(modifier = Modifier.height(16.dp))
 
-
-            Spacer(modifier = Modifier.height(24.dp))
             DestinationFolderItem(
                 onClick = { destinationPicker.launch(Uri.parse("root")) },
                 enabled = state.step == HomeScreenStep.INITIAL,
@@ -89,6 +87,7 @@ fun HomeScreen(
                 )
             )
 
+            Spacer(modifier = Modifier.height(24.dp))
             DownloadButton(step = state.step) {
                 if (state.youtubeLink.isBlank()) {
                     Toast.makeText(context, "Link is empty", Toast.LENGTH_SHORT).show()
@@ -121,7 +120,7 @@ fun HomeScreen(
                         }
 
                         HomeScreenStep.FAILED -> {
-                            FailureStepContent()
+                            FailureStepContent(errorMessage = state.errorMessage)
                         }
 
                         else -> {
