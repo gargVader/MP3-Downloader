@@ -24,10 +24,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (!Python.isStarted()) {
-            Python.start(AndroidPlatform(this));
-        }
-
         setContent {
             MyApplicationTheme {
                 MainActivityContent()

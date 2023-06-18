@@ -38,10 +38,18 @@ fun HomeScreen(
     val state = viewModel.state
     val rootPath = LocalContext.current.filesDir.absolutePath
 
-    LaunchedEffect(state) {
-        state.toastErrorMessage?.let {
-            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+    state.toastErrorMessage?.let { message ->
+        LaunchedEffect(key1 = message) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             viewModel.toastErrorMessageShown()
+        }
+    }
+
+    state.step.let { step ->
+        LaunchedEffect(key1 = step) {
+            if (step == HomeScreenStep.DOWNLOADING) viewModel.downloadAudio()
+            else if (step == HomeScreenStep.CONVERTING) viewModel.convertAudio()
+            else if (step == HomeScreenStep.SAVING) viewModel.saveAudio()
         }
     }
 
@@ -104,7 +112,7 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     when (state.step) {
                         HomeScreenStep.DOWNLOADING -> {
-                            DownloadingStepContent()
+                            DownloadingStepContent(percentComplete = state.downloadPercentComplete)
                         }
 
                         HomeScreenStep.CONVERTING -> {

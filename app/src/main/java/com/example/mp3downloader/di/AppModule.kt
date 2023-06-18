@@ -15,8 +15,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providesJsonAdapter(): JsonAdapter<VideoInfo> {
-        return Moshi.Builder().build().adapter(VideoInfo::class.java)
+    fun providesMoshi(): Moshi {
+        return Moshi.Builder().build()
     }
 
 }

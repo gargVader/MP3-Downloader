@@ -6,9 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mp3downloader.data.model.DownloadProgressInfo
 import com.example.mp3downloader.data.model.VideoInfo
 import com.example.mp3downloader.mainMod
-import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -16,10 +17,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    val jsonAdapter: JsonAdapter<VideoInfo>
+    val moshi: Moshi
 ) : ViewModel() {
     var state by mutableStateOf(HomeScreenState())
         private set
+
+    val videoInfoJsonAdapter = moshi.adapter(VideoInfo::class.java)
+    val downloadInfoJsonAdapter = moshi.adapter(DownloadProgressInfo::class.java)
 
     fun onEvent(event: HomeScreenEvents) {
         when (event) {
@@ -47,11 +51,10 @@ class HomeViewModel @Inject constructor(
                 val output = mainMod().callAttr(
                     "get_video_info",
                     state.youtubeLink,
-                    this@HomeViewModel::callbackFromMain
-                ).toString().replace('\'', '"')
-
-                val videoInfo: VideoInfo = jsonAdapter.fromJson(output)
-                    ?: throw Exception("Error while parsing json")
+                )
+                Log.d("Girish", "grabInfo: $output")
+                val videoInfo: VideoInfo = videoInfoJsonAdapter.fromJson(output.toString())
+                    ?: throw Exception("Error while parsing video info json")
                 state = state.copy(
                     step = HomeScreenStep.DOWNLOADING,
                     videoInfo = videoInfo
@@ -69,28 +72,49 @@ class HomeViewModel @Inject constructor(
     }
 
     fun callbackFromMain(message: String) {
-        Log.d("Girish", "callbackFromMain: $message")
+        try {
+            val downloadProgressInfo: DownloadProgressInfo =
+                downloadInfoJsonAdapter.fromJson(message)
+                    ?: throw Exception("Error while parsing download progress info json")
+            Log.d("Girish", "callbackFromMain: $downloadProgressInfo")
+            state = state.copy(
+                downloadPercentComplete = downloadProgressInfo.percentComplete,
+            )
+        } catch (e: Exception) {
+            Log.d("Girish", "callbackFromMain: ${e.message}")
+        }
     }
 
-    private fun downloadAudio() {
+    fun downloadAudio() {
         viewModelScope.launch {
+            Log.d("Girish", "downloadAudio: started")
             try {
                 val output = mainMod().callAttr(
                     "download_audio",
-                    state.youtubeLink
+                    state.youtubeLink,
+                    this@HomeViewModel::callbackFromMain
                 )
                 Log.d("Girish", "downloadAudio: $output")
-                state = state.copy(
-                    step = HomeScreenStep.CONVERTING,
-                )
+//                state = state.copy(
+//                    step = HomeScreenStep.CONVERTING,
+//                )
             } catch (e: Exception) {
                 state = state.copy(
                     step = HomeScreenStep.FAILED,
-                    errorMessage = e.stackTraceToString()
+                    errorMessage = e.message ?: "Unknown error"
                 )
-                Log.d("Girish", "downloadAudio: error=${e.message}")
+                Log.d("Girish", "downloadAudio: error=${e.stackTrace}")
             }
+            Log.d("Girish", "downloadAudio: finished")
         }
+    }
+
+    fun convertAudio() {
+
+    }
+
+    fun saveAudio() {
+
     }
 
     fun toastErrorMessageShown() {
