@@ -6,6 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.arthenica.mobileffmpeg.Config
+import com.arthenica.mobileffmpeg.FFmpeg
 import com.example.mp3downloader.data.model.DownloadProgressInfo
 import com.example.mp3downloader.data.model.VideoInfo
 import com.example.mp3downloader.mainMod
@@ -13,6 +15,7 @@ import com.squareup.moshi.Moshi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -59,7 +62,6 @@ class HomeViewModel @Inject constructor(
                     step = HomeScreenStep.DOWNLOADING,
                     videoInfo = videoInfo
                 )
-//                downloadAudio()
             } catch (e: Exception) {
                 state = state.copy(
                     step = HomeScreenStep.INITIAL,
@@ -95,9 +97,9 @@ class HomeViewModel @Inject constructor(
                     this@HomeViewModel::callbackFromMain
                 )
                 Log.d("Girish", "downloadAudio: $output")
-//                state = state.copy(
-//                    step = HomeScreenStep.CONVERTING,
-//                )
+                state = state.copy(
+                    step = HomeScreenStep.CONVERTING,
+                )
             } catch (e: Exception) {
                 state = state.copy(
                     step = HomeScreenStep.FAILED,
@@ -109,8 +111,32 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun convertAudio() {
+    fun convertAudio(rootPath: String) {
 
+        val inputFile = "${rootPath + File.separator}\"${state.videoInfo!!.title}.m4a\""
+        val outputFile = "${rootPath + File.separator}\"${state.videoInfo!!.simplifiedTitle}.mp3\""
+
+        Log.d("Girish", "convertAudio: $inputFile")
+        Log.d("Girish", "convertAudio: $outputFile")
+
+        Config.resetStatistics()
+        FFmpeg.executeAsync(
+            "-i $inputFile -c:v copy -c:a libmp3lame -q:a 4 $outputFile"
+        ) { executionId, returnCode ->
+            if (returnCode == Config.RETURN_CODE_SUCCESS) {
+                Log.i("Girish", "Async command execution completed successfully.")
+                state = state.copy(
+                    step = HomeScreenStep.SAVING
+                )
+            } else if (returnCode == Config.RETURN_CODE_CANCEL) {
+                Log.i("Girish", "Async command execution cancelled by user.")
+            } else {
+                Log.i(
+                    "Girish",
+                    "Async command execution failed with returnCode=$returnCode"
+                )
+            }
+        }
     }
 
     fun saveAudio() {

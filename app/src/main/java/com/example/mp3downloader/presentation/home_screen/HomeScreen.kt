@@ -36,7 +36,7 @@ fun HomeScreen(
 ) {
 
     val state = viewModel.state
-    val rootPath = LocalContext.current.filesDir.absolutePath
+    val rootPath = LocalContext.current.filesDir.canonicalPath
 
     state.toastErrorMessage?.let { message ->
         LaunchedEffect(key1 = message) {
@@ -48,7 +48,7 @@ fun HomeScreen(
     state.step.let { step ->
         LaunchedEffect(key1 = step) {
             if (step == HomeScreenStep.DOWNLOADING) viewModel.downloadAudio()
-            else if (step == HomeScreenStep.CONVERTING) viewModel.convertAudio()
+            else if (step == HomeScreenStep.CONVERTING) viewModel.convertAudio(rootPath)
             else if (step == HomeScreenStep.SAVING) viewModel.saveAudio()
         }
     }
