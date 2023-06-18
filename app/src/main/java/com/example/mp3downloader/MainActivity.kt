@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -15,6 +16,7 @@ import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 import com.example.mp3downloader.presentation.common.ScreenHeader
 import com.example.mp3downloader.presentation.home_screen.HomeScreen
+import com.example.mp3downloader.ui.theme.Typography
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -27,7 +29,9 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            MainActivityContent()
+            MyApplicationTheme {
+                MainActivityContent()
+            }
         }
     }
 }
@@ -40,4 +44,12 @@ fun MainActivityContent() {
         Spacer(modifier = Modifier.height(24.dp))
         HomeScreen()
     }
+}
+
+@Composable
+fun MyApplicationTheme(content: @Composable () -> Unit) {
+    MaterialTheme(
+        typography = Typography,
+        content = content
+    )
 }

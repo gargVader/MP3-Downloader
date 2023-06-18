@@ -23,10 +23,12 @@ fun TextFieldItem(
     onValueChange: (value: String) -> Unit,
     modifier: Modifier = Modifier,
     onDeleteClick: () -> Unit,
+    enabled : Boolean = true,
     singleLine: Boolean = true,
 ) {
     OutlinedTextField(
         modifier = modifier.fillMaxWidth(),
+        enabled = enabled,
         value = value,
         onValueChange = {
             onValueChange(it)
