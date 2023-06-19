@@ -41,12 +41,12 @@ fun VideoInfoItem(videoInfo: VideoInfo) {
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
-//            AsyncImage(
-//                model = videoInfo.thumbnail,
-//                contentScale = ContentScale.Inside,
-//                contentDescription = null,
-//                modifier = Modifier.clip(RoundedCornerShape(8.dp))
-//            )
+            AsyncImage(
+                model = videoInfo.thumbnail,
+                contentScale = ContentScale.Inside,
+                contentDescription = null,
+                modifier = Modifier.clip(RoundedCornerShape(8.dp))
+            )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = videoInfo.title,

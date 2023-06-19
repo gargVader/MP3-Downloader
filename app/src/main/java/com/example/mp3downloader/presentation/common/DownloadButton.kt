@@ -16,16 +16,21 @@ import com.example.mp3downloader.presentation.home_screen.HomeScreenStep
 import com.example.mp3downloader.ui.theme.Purple
 
 @Composable
-fun DownloadButton(step: HomeScreenStep, onClick: () -> Unit) {
+fun DownloadButton(step: HomeScreenStep, modifier: Modifier = Modifier, onClick: () -> Unit) {
+
     Button(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(
             containerColor = Purple,
             contentColor = Color.White
         ),
         shape = RoundedCornerShape(8.dp),
-        enabled = step == HomeScreenStep.INITIAL,
+        enabled = step in listOf(
+            HomeScreenStep.INITIAL,
+            HomeScreenStep.SUCCESS,
+            HomeScreenStep.FAILED
+        ),
     ) {
         if (step == HomeScreenStep.INITIAL) {
             Text(text = "Download", modifier = Modifier.padding(16.dp))
@@ -34,6 +39,8 @@ fun DownloadButton(step: HomeScreenStep, onClick: () -> Unit) {
                 CircularProgressIndicator()
                 Text(text = "Grabbing Info...", modifier = Modifier.padding(16.dp))
             }
+        } else if ((step == HomeScreenStep.SUCCESS) or (step == HomeScreenStep.FAILED)) {
+            Text(text = "Download Another MP3", modifier = Modifier.padding(16.dp))
         }
     }
 }

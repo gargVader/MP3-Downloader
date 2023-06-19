@@ -4,12 +4,13 @@ import android.net.Uri
 import com.example.mp3downloader.data.model.VideoInfo
 
 data class HomeScreenState(
-    val youtubeLink: String = "https://www.youtube.com/watch?v=DIXd3hb2Ln8",
+    val youtubeLink: String = "https://www.youtube.com/watch?v=Sfqiye0HJSo",
     val destinationFolder: Uri = Uri.EMPTY,
 
     val step: HomeScreenStep = HomeScreenStep.INITIAL,
 
     val toastErrorMessage: String? = null,
+    // Used to display message in ErrorScreen
     val errorMessage: String = "",
 
     val videoInfo: VideoInfo? = null,

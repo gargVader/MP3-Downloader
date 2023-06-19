@@ -104,6 +104,10 @@ dependencies {
 
     // ffmpeg
     implementation('com.arthenica:mobile-ffmpeg-full:4.4')
+
+    // DocumentFile
+    implementation("androidx.documentfile:documentfile:1.0.1")
+
 }
 
 // Allow references to generated code

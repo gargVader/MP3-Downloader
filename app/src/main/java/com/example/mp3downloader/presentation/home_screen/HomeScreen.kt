@@ -27,6 +27,7 @@ import com.example.mp3downloader.presentation.common.step_content.FailureStepCon
 import com.example.mp3downloader.presentation.common.step_content.SavingStepContent
 import com.example.mp3downloader.presentation.common.step_content.SuccessStepContent
 import com.example.mp3downloader.ui.theme.Typography
+import java.io.File
 import java.net.URLDecoder
 
 @Composable
@@ -36,7 +37,7 @@ fun HomeScreen(
 ) {
 
     val state = viewModel.state
-    val rootPath = LocalContext.current.filesDir.canonicalPath
+    val rootPath = context.filesDir.canonicalPath
 
     state.toastErrorMessage?.let { message ->
         LaunchedEffect(key1 = message) {
@@ -47,9 +48,25 @@ fun HomeScreen(
 
     state.step.let { step ->
         LaunchedEffect(key1 = step) {
-            if (step == HomeScreenStep.DOWNLOADING) viewModel.downloadAudio()
+            Log.d("Girish", "HomeScreen: CurrentStep: $step")
+            if (step == HomeScreenStep.GRABBING) viewModel.grabInfo()
+            else if (step == HomeScreenStep.DOWNLOADING) viewModel.downloadAudio()
             else if (step == HomeScreenStep.CONVERTING) viewModel.convertAudio(rootPath)
-            else if (step == HomeScreenStep.SAVING) viewModel.saveAudio()
+            else if (step == HomeScreenStep.SAVING) {
+                try {
+                    val filename = state.videoInfo!!.simplifiedTitle + ".mp3"
+                    val myInternalFile =
+                        File(context.filesDir.canonicalPath + File.separator + filename)
+                    val myExternalFile = File(context.getExternalFilesDir("filepath"), filename)
+                    viewModel.saveAudio(
+                        internalFile = myInternalFile,
+                        externalFile = myExternalFile
+                    )
+                } catch (e: Exception) {
+                    Log.d("Girish", "HomeScreen: ${e.message}")
+                    viewModel.goToFailureScreen(e.message)
+                }
+            }
         }
     }
 
@@ -124,11 +141,15 @@ fun HomeScreen(
                         }
 
                         HomeScreenStep.SUCCESS -> {
-                            SuccessStepContent()
+                            SuccessStepContent() {
+                                viewModel.onEvent(HomeScreenEvents.OnDownloadAnotherButtonClick)
+                            }
                         }
 
                         HomeScreenStep.FAILED -> {
-                            FailureStepContent(errorMessage = state.errorMessage)
+                            FailureStepContent(errorMessage = state.errorMessage) {
+                                viewModel.onEvent(HomeScreenEvents.OnDownloadAnotherButtonClick)
+                            }
                         }
 
                         else -> {
