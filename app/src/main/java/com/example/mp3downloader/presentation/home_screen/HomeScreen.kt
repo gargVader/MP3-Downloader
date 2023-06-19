@@ -16,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.documentfile.provider.DocumentFile
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mp3downloader.presentation.common.DestinationFolderItem
 import com.example.mp3downloader.presentation.common.DownloadButton
@@ -27,7 +28,12 @@ import com.example.mp3downloader.presentation.common.step_content.FailureStepCon
 import com.example.mp3downloader.presentation.common.step_content.SavingStepContent
 import com.example.mp3downloader.presentation.common.step_content.SuccessStepContent
 import com.example.mp3downloader.ui.theme.Typography
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileInputStream
+import java.io.InputStream
+import java.io.OutputStream
 import java.net.URLDecoder
 
 @Composable
@@ -53,18 +59,40 @@ fun HomeScreen(
             else if (step == HomeScreenStep.DOWNLOADING) viewModel.downloadAudio()
             else if (step == HomeScreenStep.CONVERTING) viewModel.convertAudio(rootPath)
             else if (step == HomeScreenStep.SAVING) {
-                try {
-                    val filename = state.videoInfo!!.simplifiedTitle + ".mp3"
-                    val myInternalFile =
-                        File(context.filesDir.canonicalPath + File.separator + filename)
-                    val myExternalFile = File(context.getExternalFilesDir("filepath"), filename)
-                    viewModel.saveAudio(
-                        internalFile = myInternalFile,
-                        externalFile = myExternalFile
-                    )
-                } catch (e: Exception) {
-                    Log.d("Girish", "HomeScreen: ${e.message}")
-                    viewModel.goToFailureScreen(e.message)
+                // TODO: Shift to HomeViewModel. Please consider this for now. Its 3am right now.
+                withContext(Dispatchers.IO) {
+                    try {
+                        val filename = state.videoInfo!!.simplifiedTitle + ".mp3"
+                        val myInternalFile: File =
+                            File(context.filesDir.canonicalPath + File.separator + filename)
+//                        val myExternalFile = File(context.getExternalFilesDir("filepath"), filename)
+
+                        val documentFile =
+                            DocumentFile.fromTreeUri(context, state.destinationFolder)
+                        val myExternalFile: DocumentFile? =
+                            documentFile?.createFile("audio/mpeg", filename)
+                        val fos: OutputStream =
+                            context.contentResolver.openOutputStream(myExternalFile!!.uri)!!
+                        val fis: InputStream = FileInputStream(myInternalFile)
+
+                        val buffer = ByteArray(1024)
+                        var bytesRead = fis.read(buffer)
+
+                        while (bytesRead != -1) {
+                            fos.write(buffer, 0, bytesRead)
+                            bytesRead = fis.read(buffer)
+                        }
+
+                        // Close the streams
+                        fis.close()
+                        fos.close()
+
+                        myInternalFile.delete()
+                        viewModel.goToSuccessScreen()
+                    } catch (e: Exception) {
+                        Log.d("Girish", "HomeScreen: ${e.message}")
+                        viewModel.goToFailureScreen(e.message)
+                    }
                 }
             }
         }
@@ -116,6 +144,8 @@ fun HomeScreen(
             DownloadButton(step = state.step) {
                 if (state.youtubeLink.isBlank()) {
                     Toast.makeText(context, "Link is empty", Toast.LENGTH_SHORT).show()
+                } else if (state.destinationFolder == Uri.EMPTY){
+                    Toast.makeText(context, "Destination folder is empty", Toast.LENGTH_SHORT).show()
                 } else {
                     externalStoragePermissionResultLauncher.launch(
                         Manifest.permission.WRITE_EXTERNAL_STORAGE
