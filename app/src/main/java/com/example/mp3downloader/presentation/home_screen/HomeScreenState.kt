@@ -4,7 +4,7 @@ import android.net.Uri
 import com.example.mp3downloader.data.model.VideoInfo
 
 data class HomeScreenState(
-    val youtubeLink: String = "https://www.youtube.com/watch?v=Sfqiye0HJSo",
+    val youtubeLink: String = "",
     val destinationFolder: Uri = Uri.EMPTY,
 
     val step: HomeScreenStep = HomeScreenStep.INITIAL,

@@ -144,7 +144,7 @@ class HomeViewModel @Inject constructor(
 
             Config.resetStatistics()
             Config.enableStatisticsCallback { stats ->
-                Log.d("Girish", "convertAudio: ${stats.videoFrameNumber} ${stats.time}")
+                Log.d("Girish", "convertAudio: $stats")
             }
             FFmpeg.executeAsync(
                 "-i $inputFile -c:v copy -c:a libmp3lame -q:a 4 $outputFile"
