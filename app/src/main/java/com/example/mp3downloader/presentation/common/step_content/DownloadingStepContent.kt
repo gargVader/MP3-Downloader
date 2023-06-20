@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.mp3downloader.ui.theme.Blue
+import com.example.mp3downloader.ui.theme.Typography
 
 @Composable
 fun DownloadingStepContent(
@@ -21,7 +22,7 @@ fun DownloadingStepContent(
         targetValue = percentComplete,
         animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
     )
-    Text(text = "Downloading...")
+    Text(text = "Downloading...", style = Typography.bodyMedium)
     LinearProgressIndicator(
         progress = animatedProgress,
         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),

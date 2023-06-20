@@ -156,7 +156,7 @@ fun HomeScreen(
             state.videoInfo?.let { videoInfo ->
                 Column {
                     VideoInfoItem(videoInfo = videoInfo)
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
                     when (state.step) {
                         HomeScreenStep.DOWNLOADING -> {
                             DownloadingStepContent(percentComplete = state.downloadPercentComplete)
